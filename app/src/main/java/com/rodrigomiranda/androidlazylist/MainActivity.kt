@@ -1,12 +1,11 @@
 package com.rodrigomiranda.androidlazylist
 
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,8 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -29,9 +33,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import com.rodrigomiranda.androidlazylist.ui.theme.AndroidLazyListTheme
 
@@ -113,26 +117,25 @@ fun Greetings(modifier: Modifier = Modifier, names: List<String> = List(1000) { 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    val extraPadding by animateDpAsState(
-        targetValue = if (expanded) 48.dp else 0.dp,
-        label = "extraPaddingDpAnimation",
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        )
-    )
 
-    Surface(
-        color = MaterialTheme.colorScheme.primary,
-        modifier = modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+    Card(
+        modifier = modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
     ) {
         Row(
-            modifier = Modifier.padding(24.dp)
+            modifier = Modifier
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+                )
+                .padding(12.dp)
         ) {
             Column(
                 modifier = Modifier
                     .weight(1F)
-                    .padding(bottom = extraPadding.coerceAtLeast(0.dp)),
+                    .padding(12.dp)
             ) {
                 Text(text = "Hello")
                 Text(
@@ -141,12 +144,23 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
                         fontWeight = FontWeight.ExtraBold
                     )
                 )
+                if (expanded) {
+                    List(8) { "Compose sentence ${it + 1}" }.forEach {
+                        Text(text = it)
+                    }
+                }
             }
-            ElevatedButton(
-                modifier = Modifier.weight(0.7F),
+            IconButton(
                 onClick = { expanded = !expanded }
             ) {
-                Text(if (expanded) "Show less" else "Show more")
+                Icons.Filled.ExpandLess
+                Icon(
+                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (expanded) stringResource(R.string.show_less) else stringResource(
+                        R.string.show_more
+                    ),
+                    modifier = Modifier
+                )
             }
         }
     }
@@ -156,7 +170,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     showBackground = true,
     name = "Greeting Preview Dark",
     widthDp = 420,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    apiLevel = 30
 )
 @Composable
 fun GreetingPreview() {
