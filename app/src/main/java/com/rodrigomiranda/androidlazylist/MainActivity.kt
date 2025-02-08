@@ -4,19 +4,24 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,7 +40,53 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp(modifier: Modifier = Modifier, names: List<String> = listOf("World", "Compose")) {
+fun OnboardingScreen(modifier: Modifier = Modifier, onContinueClicked: () -> Unit) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Welcome to the Compose App")
+        Button(
+            modifier = Modifier.padding(vertical = 24.dp),
+            onClick = onContinueClicked
+        ) {
+            Text("Continue")
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 420, heightDp = 420)
+@Composable
+fun OnboardingScreenPreview() {
+    AndroidLazyListTheme {
+        OnboardingScreen { }
+    }
+}
+
+@Composable
+fun MyApp(modifier: Modifier = Modifier) {
+    var shouldShowOnboarding by remember { mutableStateOf(true) }
+
+    Surface(modifier) {
+        if (shouldShowOnboarding) {
+            OnboardingScreen { shouldShowOnboarding = false }
+        } else {
+            Greetings()
+        }
+    }
+}
+
+@Preview
+@Composable
+fun MyAppPreview(modifier: Modifier = Modifier) {
+    AndroidLazyListTheme {
+        MyApp(Modifier.fillMaxSize())
+    }
+}
+
+@Composable
+fun Greetings(modifier: Modifier = Modifier, names: List<String> = listOf("World", "Compose")) {
     Scaffold(
         modifier = modifier
     ) { innerPadding ->
@@ -55,8 +106,8 @@ fun MyApp(modifier: Modifier = Modifier, names: List<String> = listOf("World", "
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    val expanded = remember { mutableStateOf(false) }
-    val extraPadding = if (expanded.value) 48.dp else 0.dp
+    var expanded by remember { mutableStateOf(false) }
+    val extraPadding = if (expanded) 48.dp else 0.dp
 
     Surface(
         color = MaterialTheme.colorScheme.primary,
@@ -75,9 +126,9 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
             }
             ElevatedButton(
                 modifier = Modifier.weight(0.7F),
-                onClick = { expanded.value = !expanded.value }
+                onClick = { expanded = !expanded }
             ) {
-                Text(if (expanded.value) "Show less" else "Show more")
+                Text(if (expanded) "Show less" else "Show more")
             }
         }
     }
@@ -87,6 +138,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     AndroidLazyListTheme {
-        MyApp()
+        Greetings()
     }
 }
